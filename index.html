@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="./js/script.js" defer></script>
+    <title>Study Time</title>
+</head>
+
+<body>
+    <header>
+
+        <h1>Study</h1>
+        <nav>
+            <a href="#calendar">calendario</a>
+            <a href="#sec1">secção 1</a>
+            <a href="#sec2">secção 2</a>
+            <a href="#sec3">secção 3</a>
+            <a href="#contact">contactos</a>
+        </nav>
+    </header>
+    <section class="hero" id="top">
+        <div class="word">
+            <span>S</span>
+            <span>t</span>
+            <span>u</span>
+            <span>d</span>
+            <span>y</span>
+        </div>
+        <div class="word">
+            <span>T</span>
+            <span>i</span>
+            <span>m</span>
+            <span>e</span>
+
+        </div>
+    </section>
+    <section>
+        <h2 style="text-align: center;">calendario</h2>
+        <div id="calendar"></div>
+    </section>
+
+    <section id="sec1">
+        <h2>Secção 1 </h2>
+        <p>Blablablablablablabla</p>
+        <div class="cards" id="cards-container">
+            <!-- vai apareecr aqui os cards pelo js -->
+        </div>
+        <button id="add-card-btn" style="display: none;">Criar card</button>
+    </section>
+    <section id="sec2">
+        <h2>Secção 2</h2>
+        <p>Área para outro tipo de conteúdo, funcionalidades ou imagens.</p>
+        <div class="cards">
+            <div class="card">
+                <h3>Destaque</h3>
+                <ul>
+                    <li>Rápido e responsivo</li>
+                    <li>Design moderno</li>
+                    <li>Fácil de personalizar</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Imagem/Ilustração</h3>
+                <div style="height:150px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#888;">
+                    Espaço para imagem
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="sec3">
+        <h2>Seção 3</h2>
+        <p>Boa para testemunhos, FAQ ou call-to-action.</p>
+        <div class="cards">
+            <div class="card">
+                <p><em>“Testemunho de exemplo 1. Excelente serviço!”</em></p>
+                <p>Cliente 1</p>
+            </div>
+            <div class="card">
+                <p><em>“Testemunho de exemplo 2. Muito satisfeito!”</em></p>
+                <p>Cliente 2</p>
+            </div>
+            <div class="card">
+                <p><em>“Testemunho de exemplo 3. Recomendo bastante!”</em></p>
+                <p>Cliente 3</p>
+            </div>
+        </div>
+
+        <section id="contact">
+            <div id="contact" style="margin-top:30px;">
+                <h3>Contacto</h3>
+                <form>
+                    <input type="text" placeholder="Nome" style="width:100%; padding:10px; margin:5px 0;">
+                    <input type="email" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">
+                    <textarea placeholder="Mensagem" style="width:100%; padding:10px; margin:5px 0;"></textarea>
+                    <button type="submit" style="padding:10px 20px; background:#0077cc; color:white; border:none; border-radius:6px; cursor:pointer;">Enviar</button>
+                </form>
+            </div>
+        </section>
+
+
+    </section>
+    <footer>
+        <p>© <span id="year"></span> MeuWebsite. Todos os direitos reservados.</p>
+        <a href="#sec1">Voltar ao topo ↑</a>
+    </footer>
+</body>
+
+</html>
