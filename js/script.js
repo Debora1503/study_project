@@ -11,79 +11,129 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('DOMContentLoaded', function() {
     const cardsContainer = document.getElementById('cards-container');
     const addCardBtn = document.getElementById('add-card-btn');
-    
+
     function renderCards(events) {
-        cardsContainer.innerHTML = '';
-        if (events.length === 0) {
-            addCardBtn.style.display = 'block';
-        } else {
-            addCardBtn.style.display = 'none';
-
-            // ordenar por data (mais recente → mais antigo)
-            let sortedEvents = [...events].sort((a, b) => a.start.getTime() - b.start.getTime());
-
-            sortedEvents.forEach(event => {
-                let card = document.createElement('div');
-                card.className = 'card';
-
-                let materia = event.extendedProps.materia || "Nenhuma definida";
-                let apontamentos = event.extendedProps.apontamentos || "";
-
-                card.innerHTML = `
-                    <h3>${event.title}</h3> 
-                    <p>Data: ${event.start.toLocaleDateString()}</p>
-                    <p>
-                        <strong>Matéria:</strong> 
-                        <span class="materia-text">${materia}</span>
-                        <button class="edit-materia-btn">✏️</button>
-                    </p>
-                    <label style="display:block; margin-top:10px; font-weight:bold;">
-                        Apontamentos:
-                    </label>
-                    <textarea class="apontamentos-textarea" rows="4" style="width:100%; padding:5px;">${apontamentos}</textarea>
-                `;
-
-                // editar materia (incline input)
-                card.querySelector('.edit-materia-btn').addEventListener('click', () => {
-                    let materiaSpan = card.querySelector('.materia-text');
-
-                    let input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = materiaSpan.textContent;
-                    input.style.width = "70%";
-
-                    materiaSpan.replaceWith(input);
-                    input.focus();
-
-                    function saveMateria() {
-                        let novaMateria = input.value.trim() || "Nenhuma definida";
-                        event.setExtendedProp('materia', novaMateria);
-
-                        let newSpan = document.createElement('span');
-                        newSpan.className = 'materia-text';
-                        newSpan.textContent = novaMateria;
-
-                        input.replaceWith(newSpan);
-                    }
-
-                    input.addEventListener('blur', saveMateria);
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            saveMateria();
-                        }
-                    });
-                        //guardar apontamentos automaticamente ao escrever
-                    let textarea = card.querySelector('.apontamentos-textarea');
-                    textarea.addEventListener('input', () => {
-                        event.setExtendedProp('apontamentos', textarea.value);
-                    });
-                    cardsContainer.appendChild(card);
-                });
-
-
-            });
-        }
+    cardsContainer.innerHTML = '';
+    if (!events || events.length === 0) {
+        addCardBtn.style.display = 'block';
+        return;
+    } else {
+        addCardBtn.style.display = 'none';
     }
+
+    // ordenar por data (mais antiga -> mais recente)
+    let sortedEvents = [...events].sort((a, b) => (a.start ? a.start.getTime() : 0) - (b.start ? b.start.getTime() : 0));
+
+    sortedEvents.forEach(ev => {
+        let wrapper = document.createElement('div');
+        wrapper.className = 'card-wrapper';
+
+        // card principal
+        let card = document.createElement('div');
+        card.className = 'card';
+
+        let materia = ev.extendedProps.materia || "Nenhuma definida";
+        let apontamentos = ev.extendedProps.apontamentos || "";
+
+        card.innerHTML = `
+            <h3>${ev.title}</h3> 
+            <p>Data: ${ev.start ? ev.start.toLocaleDateString() : ''}</p>
+            <p>
+                <strong>Matéria:</strong> 
+                <span class="materia-text">${materia}</span>
+                <button class="edit-materia-btn">✏️</button>
+            </p>
+        `;
+
+        // bloco de apontamentos (fora do card, inicialmente escondido)
+        let apontamentosBlock = document.createElement('div');
+        apontamentosBlock.className = "apontamentos-block";
+        apontamentosBlock.style.display = "none";
+        apontamentosBlock.style.marginTop = "10px";
+        apontamentosBlock.style.padding = "10px";
+        apontamentosBlock.style.background = "#fff";
+        apontamentosBlock.style.border = "1px solid #ccc";
+        apontamentosBlock.style.borderRadius = "8px";
+        apontamentosBlock.innerHTML = `
+            <h4>Apontamentos - ${materia}</h4>
+            <textarea class="apontamentos-textarea" rows="5" style="width:100%; padding:8px;">${apontamentos}</textarea>
+        `;
+
+        // evitar que cliques dentro do bloco fechem-no
+        apontamentosBlock.addEventListener('click', (e) => e.stopPropagation());
+
+        // editar matéria (inline) — não abre o bloco
+        const editBtn = card.querySelector('.edit-materia-btn');
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const materiaSpan = card.querySelector('.materia-text');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = materiaSpan.textContent === 'Nenhuma definida' ? '' : materiaSpan.textContent;
+            input.style.width = "70%";
+
+            materiaSpan.replaceWith(input);
+            input.focus();
+
+            function saveMateria() {
+                const novaMateria = input.value.trim() || "Nenhuma definida";
+                ev.setExtendedProp('materia', novaMateria);
+
+                const newSpan = document.createElement('span');
+                newSpan.className = 'materia-text';
+                newSpan.textContent = novaMateria;
+                input.replaceWith(newSpan);
+
+                // atualizar título do bloco (se já criado)
+                const h4 = apontamentosBlock.querySelector('h4');
+                if (h4) h4.textContent = 'Apontamentos - ' + novaMateria;
+            }
+
+            input.addEventListener('blur', saveMateria);
+            input.addEventListener('keydown', (evtKey) => {
+                if (evtKey.key === 'Enter') {
+                    saveMateria();
+                    input.blur();
+                }
+            });
+        });
+
+        // toggle: clicar no card mostra/esconde o bloco de apontamentos
+        card.addEventListener('click', () => {
+            apontamentosBlock.style.display = apontamentosBlock.style.display === 'none' ? 'block' : 'none';
+            if (apontamentosBlock.style.display === 'block') {
+                // focar textarea ao abrir
+                const ta = apontamentosBlock.querySelector('.apontamentos-textarea');
+                ta.focus();
+                ta.selectionStart = ta.selectionEnd = ta.value.length;
+            }
+        });
+
+        // guardar apontamentos: só ao sair do textarea (blur) OR ao clicar em Guardar
+        const ta = apontamentosBlock.querySelector('.apontamentos-textarea');
+        ta.addEventListener('blur', (e) => {
+            ev.setExtendedProp('apontamentos', e.target.value);
+        });
+
+        // botao Guardar opcional (útil em mobile)
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Guardar';
+        saveBtn.style.marginTop = '8px';
+        saveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            ev.setExtendedProp('apontamentos', ta.value);
+            // podes mostrar uma pequena confirmação:
+            // alert('Apontamentos guardados');
+        });
+        apontamentosBlock.appendChild(saveBtn);
+
+        // montar DOM
+        wrapper.appendChild(card);
+        wrapper.appendChild(apontamentosBlock);
+        cardsContainer.appendChild(wrapper);
+    });
+}
 
     
     // inicializa o calendário
