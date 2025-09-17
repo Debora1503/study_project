@@ -103,17 +103,34 @@
             padding: 80px 20px;
             min-height: 100vh;
         }
+        #calendar-sec {
+            background: linear-gradient(135deg, #ffd2ff, #9975f4);
+            background-size: 200% 200%;
+            border-bottom: 1px solid #6946eb;
+            border-radius: 0px;
+            padding: 60px 20px;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
         
         #calendar {
             max-width: 900px;
             margin: 40px auto;
-            background: #fff;
+            background: linear-gradient(135deg, #9975f4, #ffd2ff);
+            background-size: 200% 200%;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            color: #fff;
         }
-        
-        #sec1,
+        #materia{
+            background: linear-gradient(135deg, #a07af5, #ffc9ff);
+            background-size: 200% 200%;
+            border-bottom: 1px solid #6946eb;
+            border-radius: 15px;
+            padding: 60px 20px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        #materia,
         #sec2,
         #sec3 {
             border-bottom: 1px solid #6946eb;
@@ -134,12 +151,19 @@
         }
         
         .card {
-            border: 1px solid #000068;
-            border-radius: 10px;
+            background: #fff0f8; /* branco puxado para rosa */
+            border: 1px solid #d48ddf; 
+            border-radius: 12px;
             padding: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+            background: #ffe6fa; /* um tom mais rosado ao passar o rato */
+        }
+                
         #add-card-btn {
             margin-top: 20px;
             padding: 10px 20px;
@@ -153,3 +177,4 @@
         #add-card-btn:hover {
             opacity: 0.9s;
         }
+

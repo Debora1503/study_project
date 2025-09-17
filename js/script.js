@@ -11,26 +11,81 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('DOMContentLoaded', function() {
     const cardsContainer = document.getElementById('cards-container');
     const addCardBtn = document.getElementById('add-card-btn');
-
+    
     function renderCards(events) {
         cardsContainer.innerHTML = '';
         if (events.length === 0) {
             addCardBtn.style.display = 'block';
         } else {
             addCardBtn.style.display = 'none';
-            events.forEach(event => {
+
+            // ordenar por data (mais recente → mais antigo)
+            let sortedEvents = [...events].sort((a, b) => a.start.getTime() - b.start.getTime());
+
+            sortedEvents.forEach(event => {
                 let card = document.createElement('div');
                 card.className = 'card';
+
+                let materia = event.extendedProps.materia || "Nenhuma definida";
+                let apontamentos = event.extendedProps.apontamentos || "";
+
                 card.innerHTML = `
                     <h3>${event.title}</h3> 
                     <p>Data: ${event.start.toLocaleDateString()}</p>
-                    <button onclick="alert('Ação para ${event.title}')">Ação</button>
+                    <p>
+                        <strong>Matéria:</strong> 
+                        <span class="materia-text">${materia}</span>
+                        <button class="edit-materia-btn">✏️</button>
+                    </p>
+                    <label style="display:block; margin-top:10px; font-weight:bold;">
+                        Apontamentos:
+                    </label>
+                    <textarea class="apontamentos-textarea" rows="4" style="width:100%; padding:5px;">${apontamentos}</textarea>
                 `;
-                cardsContainer.appendChild(card);
+
+                // editar materia (incline input)
+                card.querySelector('.edit-materia-btn').addEventListener('click', () => {
+                    let materiaSpan = card.querySelector('.materia-text');
+
+                    let input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = materiaSpan.textContent;
+                    input.style.width = "70%";
+
+                    materiaSpan.replaceWith(input);
+                    input.focus();
+
+                    function saveMateria() {
+                        let novaMateria = input.value.trim() || "Nenhuma definida";
+                        event.setExtendedProp('materia', novaMateria);
+
+                        let newSpan = document.createElement('span');
+                        newSpan.className = 'materia-text';
+                        newSpan.textContent = novaMateria;
+
+                        input.replaceWith(newSpan);
+                    }
+
+                    input.addEventListener('blur', saveMateria);
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            saveMateria();
+                        }
+                    });
+                        //guardar apontamentos automaticamente ao escrever
+                    let textarea = card.querySelector('.apontamentos-textarea');
+                    textarea.addEventListener('input', () => {
+                        event.setExtendedProp('apontamentos', textarea.value);
+                    });
+                    cardsContainer.appendChild(card);
+                });
+
+
             });
         }
     }
 
+    
     // inicializa o calendário
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -83,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calendar.render();
     renderCards(calendar.getEvents()); // inicializa os cards
 
-    // botão cria evento e card
+    // botão cria evento e o card
     addCardBtn.addEventListener('click', function() {
         let title = prompt("Título do evento:");
         if (title) {
