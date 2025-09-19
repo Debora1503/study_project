@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         apontamentosBlock.style.borderRadius = "8px";
         apontamentosBlock.innerHTML = `
             <h4>Apontamentos - ${materia}</h4>
-            <textarea class="apontamentos-textarea" rows="5" style="width:100%; padding:8px;">${apontamentos}</textarea>
+            <textarea class="apontamentos-textarea" rows="3" style="width:90%; max-width:250px padding:6px; resize:vertical;">${apontamentos}</textarea>
         `;
 
         // evitar que cliques dentro do bloco fechem-no
@@ -135,9 +135,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 }
 
-    
-    // inicializa o calendário
+document.addEventListener('DOMContentLoaded', function() {
+    const cardsContainer = document.getElementById('cards-container');
+    const addCardBtn = document.getElementById('add-card-btn');
     var calendarEl = document.getElementById('calendar');
+
+    //inicia o calendario 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'pt',
@@ -158,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         },
+
         eventClick: function(info) {
             // clique esquerdo → editar
             let newTitle = prompt("Editar Matéria:", info.event.title);
@@ -184,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCards(calendar.getEvents());
         }
     });
-
     calendar.render();
     renderCards(calendar.getEvents()); // inicializa os cards
 
@@ -200,4 +203,127 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    startCountdown(calendar);
+
+});
+    
+        
+
+function startCountdown(calendar) {
+    const countdownElement = document.getElementById("countdown");
+    const container = document.getElementById("countdown-container");
+
+    function updateCountdown() {
+        let events = calendar.getEvents();
+        let now = new Date();
+
+        // Encontrar o primeiro evento futuro
+        let nextEvent = events
+            .filter(ev => ev.start > now)
+            .sort((a, b) => a.start - b.start)[0];
+
+        if (!nextEvent) {
+            // Se não houver eventos, mostra apenas o relógio
+            let horas = String(now.getHours()).padStart(2, "0");
+            let minutos = String(now.getMinutes()).padStart(2, "0");
+            let segundos = String(now.getSeconds()).padStart(2, "0");
+            countdownElement.textContent = `${horas}:${minutos}:${segundos}`;
+            return;
+        }
+
+        let diff = nextEvent.start - now;
+
+        if (diff <= 0) {
+            countdownElement.textContent = "Evento a decorrer!";
+            return;
+        }
+
+        let dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+        let horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let segundos = Math.floor((diff % (1000 * 60)) / 1000);
+
+        if (dias > 0) {
+            countdownElement.textContent =
+                `${dias}d ${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+        } else {
+            countdownElement.textContent =
+                `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+        }
+    }
+
+    // Atualizar a cada segundo
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const cardsContainer = document.getElementById('cards-container');
+    const addCardBtn = document.getElementById('add-card-btn');
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: 'pt',
+        headerToolbar: {
+            left:'prev,next today',
+            center:'title',
+            right:'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: [],
+        dateClick: function(info){
+            let title = prompt("Digite o nome da disciplina:");
+            if(title){
+                calendar.addEvent({
+                    title: title,
+                    start: info.dateStr,
+                    allDay: true,
+                    color: '#dc70d8',
+                });
+            }
+        },
+        eventClick: function(info){
+            let newTitle = prompt("Editar Matéria:", info.event.title);
+            if (newTitle){
+                info.event.setProp('title', newTitle);
+            }
+        },
+        eventDidMount: function(info){
+            info.el.addEventListener('contextmenu', function(e){
+                e.preventDefault();
+                if (confirm("Deseja apagar esta materia?")){
+                    info.event.remove();
+                }
+            });
+        },
+        eventAdd: function(){
+            renderCards(calendar.getEvents());
+        },
+        eventRemove: function(){
+            renderCards(calendar.getEvents());
+        },
+        eventChange: function(){
+            renderCards(calendar.getEvents());
+        }
+    });
+
+    calendar.render();
+    renderCards(calendar.getEvents());
+
+    addCardBtn.addEventListener('click', function(){
+        let title = prompt("Título do evento:");
+        if (title){
+            let today = new Date().toISOString().split('T')[0];
+            calendar.addEvent({
+                title: title,
+                start: today,
+                allDay: true
+            });
+        }
+    });
+
+    // Iniciar countdown
+    startCountdown(calendar);
 });

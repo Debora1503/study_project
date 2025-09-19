@@ -3,6 +3,11 @@
             margin: 0;
             font-family: "Noto Serif", serif;
             line-height: 1.6rem;
+            background: linear-gradient(135deg, #ffd2ff, #9975f4);
+            background-attachment: fixed;  /* <- mantém fixo */
+            background-size: cover;
+            background-repeat: no-repeat;
+
         }
         
         .word {
@@ -45,11 +50,11 @@
             text-align: center;
             height: 100vh;
             background: linear-gradient(135deg, #9975f4, #ffd2ff);
-            background-size: 200% 200%;
+            background-size: 200% 200%; /* <- permite movimento */
+            transition: background-position 0.1s linear;
             padding: 0 20px;
-            transition: background-position 0.1;
         }
-        
+                
         .hero h2 {
             font-size: 48px;
             margin: 0;
@@ -103,38 +108,26 @@
             padding: 80px 20px;
             min-height: 100vh;
         }
-        #calendar-sec {
-            background: linear-gradient(135deg, #ffd2ff, #9975f4);
-            background-size: 200% 200%;
-            border-bottom: 1px solid #6946eb;
-            border-radius: 0px;
-            padding: 60px 20px;
-            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
         
         #calendar {
             max-width: 900px;
             margin: 40px auto;
-            background: linear-gradient(135deg, #9975f4, #ffd2ff);
-            background-size: 200% 200%;
             padding: 15px;
             border-radius: 15px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             color: #fff;
+            background: rgba(0,0,0,0.2); /* opcional: só para contraste */
         }
-        #materia{
-            background: linear-gradient(135deg, #a07af5, #ffc9ff);
-            background-size: 200% 200%;
-            border-bottom: 1px solid #6946eb;
-            border-radius: 15px;
-            padding: 60px 20px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
+
+        #calendar-sec,
         #materia,
         #sec2,
         #sec3 {
-            border-bottom: 1px solid #6946eb;
+            box-shadow: none;
+            border: none;
+            background: transparent; /* assim ficam a usar só o fundo fixo do body */
         }
+
         
         footer {
             padding: 20px;
