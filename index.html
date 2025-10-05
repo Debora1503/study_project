@@ -4,25 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Time</title>
+
     <link rel="stylesheet" href="./css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="./js/script.js" defer></script>
-    <title>Study Time</title>
 </head>
 
 <body>
+    <!-- ==== CABEÇALHO ==== -->
     <header>
-
-        <h1>Study</h1>
+        <h1>Study Time</h1>
         <nav>
-            <a href="#calendar">calendario</a>
-            <a href="#materia">Materias</a>
-            <a href="#sec2">secção 2</a>
-            <a href="#sec3">secção 3</a>
-            <a href="#contact">contactos</a>
+            <a href="#how-to-use">Como Usar</a>
+            <a href="#calendar-sec">Calendário</a>
+            <a href="#materia">Matérias</a>
+            <a href="#sec2">Contador</a>
+            <a href="#study-tips">Dicas</a>
+            <a href="#contact">Contactos</a>
         </nav>
     </header>
+
+    <!-- ==== SECÇÃO HERO ==== -->
     <section class="hero" id="top">
         <div class="word">
             <span>S</span>
@@ -36,68 +40,111 @@
             <span>i</span>
             <span>m</span>
             <span>e</span>
-
         </div>
     </section>
+
+    <!-- ==== NOVA SECÇÃO: COMO USAR ==== -->
+    <!-- Explica o propósito e as funcionalidades do site. -->
+    <section id="how-to-use">
+        <h2 style="text-align: center;">Como Usar o Study Time</h2>
+        <div class="how-to-use-container">
+            <div class="how-to-use-card">
+                <h3>🗓️ 1. Organize-se com o Calendário</h3>
+                <p> Aqui pode adicionar todos os seus eventos de estudo, testes ou entregas.</p>
+                <ul>
+                    <li><strong>Adicionar Evento:</strong> Clique diretamente num dia para adicionar um novo evento.</li>
+                    <li><strong>Editar Evento:</strong> Clique num evento existente para mudar o seu nome.</li>
+                    <li><strong>Apagar Evento:</strong> Clique com o botão direito sobre um evento para o apagar.</li>
+                </ul>
+            </div>
+            <div class="how-to-use-card">
+                <h3>📝 2. Detalhes das Matérias</h3>
+                <p>Cada evento do calendário gera um "card" na secção "Matérias". Use-os para adicionar detalhes e apontamentos.</p>
+                <ul>
+                    <li><strong>Ver Apontamentos:</strong> Clique num card para expandir e ver a área de apontamentos.</li>
+                    <li><strong>Editar Matéria:</strong> Clique no ícone de lápis (✏️ ) para editar o nome da matéria diretamente no card.</li>
+                    <li><strong>Guardar Notas:</strong> As suas notas na área de texto são guardadas automaticamente quando sai do campo.</li>
+                </ul>
+            </div>
+            <div class="how-to-use-card">
+                <h3>⏳ 3. Acompanhe o Tempo</h3>
+                <p>A secção "Contador" ajuda-o a visualizar o tempo de duas formas: um relógio normal ou uma contagem decrescente para o seu próximo evento.</p>
+                <ul>
+                    <li><strong>Alternar Vista:</strong> Use o botão "Ver contagem" / "Ver relógio" para mudar entre os modos.</li>
+                    <li><strong>Selecionar Evento:</strong> Escolha para qual evento futuro quer ver a contagem decrescente na lista.</li>
+                    <li><strong>Contador Inteligente:</strong> O contador mostra os dias, horas, minutos e segundos que faltam para o seu compromisso.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ==== SECÇÃO DO CALENDÁRIO ==== -->
     <section id="calendar-sec">
-        <h2 style="text-align: center;">calendario</h2>
+        <h2 style="text-align: center;">O seu Calendário de Estudos</h2>
         <div id="calendar"></div>
     </section>
 
+    <!-- ==== SECÇÃO DAS MATÉRIAS (CARDS) ==== -->
     <section id="materia">
-        <h2>A trabalhar </h2>
-        <p>Íra aparecer aqui o que adicionou no calendario, clique em cima para começar a estudar.</p>
+        <h2>As suas Matérias</h2>
+        <p style="text-align: center;">Aqui aparecem os seus eventos. Clique para expandir e adicionar apontamentos.</p>
         <div class="cards" id="cards-container">
-            <!-- vai apareecr aqui os cards pelo js -->
         </div>
-        <button id="add-card-btn" style="display: none;">Criar card</button>
-    </section>
+        <button id="add-card-btn" style="display: none;">Criar Card</button>
+    </section>on>
+
+    <!-- ==== SECÇÃO DO CONTADOR/RELÓGIO ==== -->
     <section id="sec2">
-        <h2>Secção 2</h2>
-        <p>Aqui vai aparecer o countdown para o próximo evento.</p>
+        <h2 style="text-align: center;">Contador de Tempo</h2>
+        <p style="text-align: center;">Acompanhe o tempo que falta para o seu próximo evento ou veja as horas.</p>
 
-        <div id="countdown-container" class="card">
-            <h3>Próximo Evento</h3>
-            <p id="countdown">00:00:00</p>
+        <div class="clock-container">
+            <!-- alternar entre relógio/contador e selecionar evento -->
+            <div class="controls">
+                <button id="toggle-countdown" style="display:none;">Ver contagem</button>
+                <select id="event-select" style="display:none;"></select>
+                <div id="event-info"></div>
+            </div>
+
+            <div class="clock">
+                <div id="days-wrapper" style="display:none;">
+                    <div class="flip-card" id="day" data-number="00">00</div>
+                    <span>dias</span>
+                </div>
+                <div class="separator" id="days-separator" style="display:none;">:</div>
+                <div class="flip-card" id="hour" data-number="00">00</div>
+                <div class="separator">:</div>
+                <div class="flip-card" id="minute" data-number="00">00</div>
+                <div class="separator">:</div>
+                <div class="flip-card" id="second" data-number="00">00</div>
+            </div>
         </div>
     </section>
 
-
-    <section id="sec3">
-        <h2>Seção 3</h2>
-        <p>Boa para testemunhos, FAQ ou call-to-action.</p>
-        <div class="cards">
-            <div class="card">
-                <p><em>“Testemunho de exemplo 1. Excelente serviço!”</em></p>
-                <p>Cliente 1</p>
-            </div>
-            <div class="card">
-                <p><em>“Testemunho de exemplo 2. Muito satisfeito!”</em></p>
-                <p>Cliente 2</p>
-            </div>
-            <div class="card">
-                <p><em>“Testemunho de exemplo 3. Recomendo bastante!”</em></p>
-                <p>Cliente 3</p>
-            </div>
+    <!-- ==== SECÇÃO DAS DICAS DE ESTUDO ==== -->
+    <section id="study-tips">
+        <h2 style="text-align: center;">Dica do Dia</h2>
+        <div class="tip-container">
+            <p id="study-tip-text">A carregar dica...</p>
         </div>
-
-        <section id="contact">
-            <div id="contact" style="margin-top:30px;">
-                <h3>Contacto</h3>
-                <form>
-                    <input type="text" placeholder="Nome" style="width:100%; padding:10px; margin:5px 0;">
-                    <input type="email" placeholder="Email" style="width:100%; padding:10px; margin:5px 0;">
-                    <textarea placeholder="Mensagem" style="width:100%; padding:10px; margin:5px 0;"></textarea>
-                    <button type="submit" style="padding:10px 20px; background:#0077cc; color:white; border:none; border-radius:6px; cursor:pointer;">Enviar</button>
-                </form>
-            </div>
-        </section>
-
-
     </section>
+
+    <!-- ==== SECÇÃO DE CONTACTO ==== -->
+    <section id="contact">
+        <h3 style="text-align: center;">Contacto</h3>
+        <form style="max-width: 600px; margin: 0 auto;">
+            <input type="text" placeholder="Nome" style="width:100%; padding:10px; margin:5px 0; border-radius: 6px; border: 1px solid #ccc;">
+            <input type="email" placeholder="Email" style="width:100%; padding:10px; margin:5px 0; border-radius: 6px; border: 1px solid #ccc;">
+            <textarea placeholder="Mensagem" style="width:100%; padding:10px; margin:5px 0; border-radius: 6px; border: 1px solid #ccc;" rows="4"></textarea>
+            <button type="submit" style="padding:10px 20px; background:#cc00be; color:white; border:none; border-radius:6px; cursor:pointer;">Enviar</button>
+        </form>
+    </section>
+
+    <!-- ==== RODAPÉ ==== -->
     <footer>
-        <p>© <span id="year"></span> MeuWebsite. Todos os direitos reservados.</p>
-        <a href="#materia">Voltar ao topo ↑</a>
+        <p>© <span id="year"></span> Study Time. Todos os direitos reservados.</p>
+        <a href="#top">Voltar ao topo ↑</a>
     </footer>
 </body>
 

@@ -1,14 +1,57 @@
-// ======== Página principal ========
-document.getElementById('year').textContent = new Date().getFullYear();
+// ================================= //
+// ==== SCRIPT GERAL DA PÁGINA ==== //
+// ================================= //
 
-const hero = document.querySelector('.hero');
-document.addEventListener('mousemove', (e) => {
-    const x = (e.clientX / window.innerWidth) * 100;
-    const y = (e.clientY / window.innerHeight) * 100;
-    hero.style.backgroundPosition = `${x}% ${y}%`;
+document.addEventListener('DOMContentLoaded', () => {
+    const yearSpan = document.getElementById('year');
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+    }
 });
 
-// ======== Função para renderizar os cards ========
+const hero = document.querySelector('.hero');
+if (hero) {
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth) * 100;
+        const y = (e.clientY / window.innerHeight) * 100;
+        hero.style.backgroundPosition = `${x}% ${y}%`;
+    });
+}
+
+// ======================================================= //
+// ==== DELEGAÇÃO DE EVENTOS PARA OS CARDS (CORRIGIDO) ==== //
+// ======================================================= //
+
+/**
+ * Configura um único event listener no container dos cards.
+ * Este listener irá gerir os cliques em todos os cards filhos.
+ * CORRIGIDO: Agora cada card expande/recolhe independentemente.
+ */
+function setupCardListeners() {
+    const cardsContainer = document.getElementById('cards-container');
+    if (!cardsContainer) return;
+
+    cardsContainer.addEventListener('click', function(event) {
+        // Evita que cliques em botões internos acionem a expansão
+        if (event.target.closest('.edit-materia-btn') || event.target.closest('.save-btn') || event.target.closest('.apontamentos-textarea')) {
+            return;
+        }
+
+        const cardHeader = event.target.closest('.card-header');
+        if (!cardHeader) return;
+
+        const clickedCard = cardHeader.closest('.card');
+        if (!clickedCard) return;
+
+        // Alterna apenas o card clicado
+        clickedCard.classList.toggle('expanded');
+    });
+}
+
+// ======================================== //
+// ==== FUNCIONALIDADE DOS CARDS DE MATÉRIA ==== //
+// ======================================== //
+
 function renderCards(events) {
     const cardsContainer = document.getElementById('cards-container');
     const addCardBtn = document.getElementById('add-card-btn');
@@ -16,193 +59,128 @@ function renderCards(events) {
     cardsContainer.innerHTML = '';
 
     if (!events || events.length === 0) {
-        addCardBtn.style.display = 'block';
+        if (addCardBtn) addCardBtn.style.display = 'block';
         return;
     } else {
-        addCardBtn.style.display = 'none';
+        if (addCardBtn) addCardBtn.style.display = 'none';
     }
 
-    // ordenar da mais antiga para a maiss recente 
     let sortedEvents = [...events].sort((a, b) => (a.start ? a.start.getTime() : 0) - (b.start ? b.start.getTime() : 0));
 
     sortedEvents.forEach(ev => {
-        let wrapper = document.createElement('div');
-        wrapper.className = 'card-wrapper';
-
-        // card principal
-        let card = document.createElement('div');
+        const card = document.createElement('div');
         card.className = 'card';
+        // Adiciona um ID único ao card para referência, se necessário.
+        card.dataset.eventId = ev.id || ev.start.getTime();
 
-        let materia = ev.extendedProps.materia || "Nenhuma definida";
-        let apontamentos = ev.extendedProps.apontamentos || "";
+        const materia = ev.extendedProps.materia || "Nenhuma definida";
+        const apontamentos = ev.extendedProps.apontamentos || "";
 
         card.innerHTML = `
-            <h3>${ev.title}</h3> 
-            <p>Data: ${ev.start ? ev.start.toLocaleDateString() : ''}</p>
-            <p>
-                <strong>Matéria:</strong> 
-                <span class="materia-text">${materia}</span>
-                <button class="edit-materia-btn">✏️</button>
-            </p>
+            <div class="card-header">
+                <h3>${ev.title}</h3>
+                <span class="arrow-icon">▼</span>
+            </div>
+            <div class="card-details">
+                <p><strong>Data:</strong> ${ev.start ? ev.start.toLocaleDateString('pt-PT') : ''}</p>
+                <div class="materia-container">
+                    <strong>Matéria:</strong> 
+                    <span class="materia-text">${materia}</span>
+                    <button class="edit-materia-btn">✏️</button>
+                </div>
+            </div>
+            <div class="apontamentos-block">
+                <h4>Apontamentos</h4>
+                <textarea class="apontamentos-textarea" rows="4">${apontamentos}</textarea>
+                <button class="save-btn">Guardar</button>
+            </div>
         `;
 
-        // bloco de apontamentos
-        let apontamentosBlock = document.createElement('div');
-        apontamentosBlock.className = "apontamentos-block";
-        apontamentosBlock.style.display = "none";
-        apontamentosBlock.style.marginTop = "10px";
-        apontamentosBlock.style.padding = "10px";
-        apontamentosBlock.style.background = "#fff";
-        apontamentosBlock.style.border = "1px solid #ccc";
-        apontamentosBlock.style.borderRadius = "8px";
-        apontamentosBlock.innerHTML = `
-            <h4>Apontamentos - ${materia}</h4>
-            <textarea class="apontamentos-textarea" rows="3" style="width:90%; max-width:250px; padding:6px; resize:vertical;">${apontamentos}</textarea>
-        `;
+        // IMPORTANTE: A lógica de clique foi removida daqui para a função setupCardListeners.
+        // Isto evita a criação de múltiplos listeners e resolve o bug.
 
-        // evitar que cliques dentro do bloco fechem-no
-        apontamentosBlock.addEventListener('click', (e) => e.stopPropagation());
-
-        // editar matéria (inline)
+        // A lógica para os botões internos de cada card pode continuar aqui,
+        // pois eles precisam de acesso direto à variável 'ev' do loop.
         const editBtn = card.querySelector('.edit-materia-btn');
-        editBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const materiaSpan = card.querySelector('.materia-text');
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Impede que o clique no botão acione o listener do header.
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = materiaSpan.textContent === 'Nenhuma definida' ? '' : materiaSpan.textContent;
-            input.style.width = "70%";
-
-            materiaSpan.replaceWith(input);
-            input.focus();
-
-            function saveMateria() {
-                const novaMateria = input.value.trim() || "Nenhuma definida";
-                ev.setExtendedProp('materia', novaMateria);
-
-                const newSpan = document.createElement('span');
-                newSpan.className = 'materia-text';
-                newSpan.textContent = novaMateria;
-                input.replaceWith(newSpan);
-
-                // atualizar título do bloco
-                const h4 = apontamentosBlock.querySelector('h4');
-                if (h4) h4.textContent = 'Apontamentos - ' + novaMateria;
-            }
-
-            input.addEventListener('blur', saveMateria);
-            input.addEventListener('keydown', (evtKey) => {
-                if (evtKey.key === 'Enter') {
-                    saveMateria();
-                    input.blur();
+                // Abre o card se não estiver aberto
+                if (!card.classList.contains('expanded')) {
+                    card.classList.add('expanded');
                 }
+
+                const materiaSpan = card.querySelector('.materia-text');
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'editable-input';
+                input.value = materiaSpan.textContent === 'Nenhuma definida' ? '' : materiaSpan.textContent;
+
+                materiaSpan.replaceWith(input);
+                input.focus();
+
+                function saveMateria() {
+                    const novaMateria = input.value.trim() || "Nenhuma definida";
+                    ev.setExtendedProp('materia', novaMateria);
+
+                    const newSpan = document.createElement('span');
+                    newSpan.className = 'materia-text';
+                    newSpan.textContent = novaMateria;
+                    input.replaceWith(newSpan);
+                }
+
+                input.addEventListener('blur', saveMateria);
+                input.addEventListener('keydown', (evtKey) => {
+                    if (evtKey.key === 'Enter') input.blur();
+                    else if (evtKey.key === 'Escape') {
+                        const originalSpan = document.createElement('span');
+                        originalSpan.className = 'materia-text';
+                        originalSpan.textContent = materia;
+                        input.replaceWith(originalSpan);
+                    }
+                });
             });
-        });
+        }
 
-        // toggle: clicar no card mostra/esconde apontamentos
-        card.addEventListener('click', () => {
-            apontamentosBlock.style.display = apontamentosBlock.style.display === 'none' ? 'block' : 'none';
-            if (apontamentosBlock.style.display === 'block') {
-                const ta = apontamentosBlock.querySelector('.apontamentos-textarea');
-                ta.focus();
-                ta.selectionStart = ta.selectionEnd = ta.value.length;
-            }
-        });
 
-        // guardar apontamentos
-        const ta = apontamentosBlock.querySelector('.apontamentos-textarea');
-        ta.addEventListener('blur', (e) => {
-            ev.setExtendedProp('apontamentos', e.target.value);
-        });
+        const textarea = card.querySelector('.apontamentos-textarea');
+        const saveBtn = card.querySelector('.save-btn');
 
-        // botão Guardar (opcional)
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Guardar';
-        saveBtn.style.marginTop = '8px';
-        saveBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            ev.setExtendedProp('apontamentos', ta.value);
-        });
-        apontamentosBlock.appendChild(saveBtn);
+        function saveNotes() {
+            ev.setExtendedProp('apontamentos', textarea.value);
+            saveBtn.textContent = 'Guardado!';
+            setTimeout(() => { saveBtn.textContent = 'Guardar'; }, 1500);
+        }
 
-        // montar DOM
-        wrapper.appendChild(card);
-        wrapper.appendChild(apontamentosBlock);
-        cardsContainer.appendChild(wrapper);
+        if (saveBtn) {
+            saveBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                saveNotes();
+            });
+        }
+        if (textarea) {
+            textarea.addEventListener('blur', saveNotes);
+        }
+
+        cardsContainer.appendChild(card);
     });
 }
 
-// ======== Função do countdown ========
-function startCountdown(calendar) {
-    const countdownElement = document.getElementById("countdown");
 
-    let currentIndex = 0; //indice do evento atual 
+// ======================================== //
+// ==== INICIALIZAÇÃO DO FULLCALENDAR ==== //
+// ======================================== //
 
-    function updateCountdown() {
-        let events = calendar.getEvents();
-        let now = new Date();
-
-        // próximo evento
-        let futureEvents = events
-            .filter(ev => ev.start > now)
-            .sort((a, b) => a.start - b.start)[0];
-
-        if (futureEvents.length === 0) {
-            // apenas relógio em tempo reak
-            let horas = String(now.getHours()).padStart(2, "0");
-            let minutos = String(now.getMinutes()).padStart(2, "0");
-            let segundos = String(now.getSeconds()).padStart(2, "0");
-            countdownElement.textContent = `${horas}:${minutos}:${segundos}`;
-            countdownElement.dataset.eventInfo = ""; //limpat 
-            return;
-        }
-
-        if (currentIndex >= futureEvents.length){
-            currentIndex = 0;
-        }
-        let nextEvent = futureEvents[currentIndex];
-        let diff = nextEvent.start - now;
-
-        if (diff <= 0) {
-            countdownElement.textContent = "Evento a decorrer!";
-            countdownElement.dataset.eventInfo = nextEvent.title;
-            return;
-        }
-
-        let dias = Math.floor(diff / (1000 * 60 * 60 * 24));
-        let horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        let minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        let segundos = Math.floor((diff % (1000 * 60)) / 1000);
-
-        let tempo = dias > 0
-            ? `${dias}d ${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`
-            : `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
-
-        //mostrar título ou matéria
-        let materia = nextEvent.extendedProps.materia || "";
-        countdownElement.textContent = materia
-            ? `${tempo} → ${materia}`
-            : `${tempo} → ${nextEvent.title}`;
-    }
-
-    //click trocar para o proximo  evenrto 
-    countdownElement.addEventListener("click", () => {
-        currentIndex++;
-        updateCountdown();
-    });
-
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-}
-
-// inicio do calendario 
 document.addEventListener('DOMContentLoaded', function() {
-    const cardsContainer = document.getElementById('cards-container');
-    const addCardBtn = document.getElementById('add-card-btn');
-    var calendarEl = document.getElementById('calendar');
+    // CHAMA A NOVA FUNÇÃO PARA CONFIGURAR O LISTENER DELEGADO
+    setupCardListeners();
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'pt',
         headerToolbar: {
@@ -212,18 +190,17 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         events: [],
         dateClick: function(info) {
-            let title = prompt("Digite o nome da disciplina:");
+            const title = prompt("Digite o nome da disciplina:");
             if (title) {
                 calendar.addEvent({
                     title: title,
                     start: info.dateStr,
                     allDay: true,
-                    color: '#dc70d8',
                 });
             }
         },
         eventClick: function(info) {
-            let newTitle = prompt("Editar Matéria:", info.event.title);
+            const newTitle = prompt("Editar Matéria:", info.event.title);
             if (newTitle) {
                 info.event.setProp('title', newTitle);
             }
@@ -236,31 +213,198 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         },
-        eventAdd: function() {
-            renderCards(calendar.getEvents());
-        },
-        eventRemove: function() {
-            renderCards(calendar.getEvents());
-        },
-        eventChange: function() {
-            renderCards(calendar.getEvents());
-        }
+        eventAdd: () => renderCards(calendar.getEvents()),
+        eventRemove: () => renderCards(calendar.getEvents()),
+        eventChange: () => renderCards(calendar.getEvents()),
     });
+
+    const addCardBtn = document.getElementById('add-card-btn');
+    if (addCardBtn) {
+        addCardBtn.addEventListener('click', function() {
+            const title = prompt("Título do novo card:");
+            if (title) {
+                calendar.addEvent({
+                    title: title,
+                    start: new Date(),
+                    allDay: true
+                });
+            }
+        });
+    }
 
     calendar.render();
     renderCards(calendar.getEvents());
-
-    addCardBtn.addEventListener('click', function() {
-        let title = prompt("Título do evento:");
-        if (title) {
-            let today = new Date().toISOString().split('T')[0];
-            calendar.addEvent({
-                title: title,
-                start: today,
-                allDay: true
-            });
-        }
-    });
-
-    startCountdown(calendar);
+    startClockOrCountdown(calendar);
+    startStudyTips();
 });
+
+
+// ============================================= //
+// ==== FUNCIONALIDADE DO RELÓGIO E CONTADOR ==== //
+// ============================================= //
+// (Esta secção não necessita de alterações)
+let showingCountdown = false;
+let selectedEventId = null;
+
+function flipNumber(id, newNumber) {
+    const card = document.getElementById(id);
+    if (!card || card.dataset.number === newNumber) return;
+
+    card.classList.add('flip');
+    setTimeout(() => {
+        card.textContent = newNumber;
+        card.dataset.number = newNumber;
+        card.classList.remove('flip');
+    }, 350);
+}
+
+function updateClock() {
+    const daysWrapper = document.getElementById('days-wrapper');
+    const daysSeparator = document.getElementById('days-separator');
+    if (daysWrapper) daysWrapper.style.display = 'none';
+    if (daysSeparator) daysSeparator.style.display = 'none';
+
+    const now = new Date();
+    flipNumber('hour', String(now.getHours()).padStart(2, '0'));
+    flipNumber('minute', String(now.getMinutes()).padStart(2, '0'));
+    flipNumber('second', String(now.getSeconds()).padStart(2, '0'));
+}
+
+function updateCountdown(nextEvent) {
+    const diff = nextEvent.start - new Date();
+    if (diff <= 0) {
+        updateClock();
+        return;
+    }
+
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutos = Math.floor((diff / (1000 * 60)) % 60);
+    const segundos = Math.floor((diff / 1000) % 60);
+
+    const daysWrapper = document.getElementById('days-wrapper');
+    const daysSeparator = document.getElementById('days-separator');
+
+    if (dias > 0) {
+        if (daysWrapper) daysWrapper.style.display = 'inline-block';
+        if (daysSeparator) daysSeparator.style.display = 'inline-block';
+        flipNumber('day', String(dias).padStart(2, '0'));
+    } else {
+        if (daysWrapper) daysWrapper.style.display = 'none';
+        if (daysSeparator) daysSeparator.style.display = 'none';
+    }
+
+    flipNumber('hour', String(horas).padStart(2, '0'));
+    flipNumber('minute', String(minutos).padStart(2, '0'));
+    flipNumber('second', String(segundos).padStart(2, '0'));
+}
+
+function startClockOrCountdown(calendar) {
+    const toggleBtn = document.getElementById('toggle-countdown');
+    const eventSelect = document.getElementById('event-select');
+    const eventInfo = document.getElementById('event-info');
+
+    function updateEventOptions() {
+        const futureEvents = calendar.getEvents().filter(ev => ev.start > new Date());
+        const savedSelection = eventSelect.value;
+        eventSelect.innerHTML = '';
+
+        if (futureEvents.length === 0) {
+            toggleBtn.style.display = "none";
+            eventSelect.style.display = "none";
+            if (eventInfo) eventInfo.textContent = "";
+            showingCountdown = false;
+            toggleBtn.textContent = "Ver contagem";
+            update();
+            return;
+        }
+
+        futureEvents.sort((a, b) => a.start - b.start);
+        futureEvents.forEach(ev => {
+            const opt = document.createElement('option');
+            opt.value = ev.id || ev.start.getTime();
+            opt.textContent = `${ev.title} (${ev.start.toLocaleDateString('pt-PT')})`;
+            eventSelect.appendChild(opt);
+        });
+
+        if (futureEvents.some(ev => (ev.id || ev.start.getTime()) == savedSelection)) {
+            eventSelect.value = savedSelection;
+        }
+
+        selectedEventId = eventSelect.value;
+        update();
+    }
+
+    function update() {
+        const currentSelectedEvent = calendar.getEvents().find(ev => (ev.id || ev.start.getTime()) == selectedEventId);
+
+        if (!currentSelectedEvent || !showingCountdown) {
+            if (eventInfo) eventInfo.textContent = "";
+            updateClock();
+        } else {
+            const eventDate = currentSelectedEvent.start.toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' });
+            if (eventInfo) eventInfo.textContent = `Contagem para: ${currentSelectedEvent.title} (${eventDate})`;
+            updateCountdown(currentSelectedEvent);
+        }
+
+        const hasFutureEvents = calendar.getEvents().some(ev => ev.start > new Date());
+        if (toggleBtn) toggleBtn.style.display = hasFutureEvents ? "inline-block" : "none";
+        if (eventSelect) eventSelect.style.display = hasFutureEvents ? "inline-block" : "none";
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            showingCountdown = !showingCountdown;
+            toggleBtn.textContent = showingCountdown ? "Ver relógio" : "Ver contagem";
+            update();
+        });
+    }
+
+    if (eventSelect) {
+        eventSelect.addEventListener('change', (e) => {
+            selectedEventId = e.target.value;
+            update();
+        });
+    }
+
+    calendar.on('eventAdd', updateEventOptions);
+    calendar.on('eventRemove', updateEventOptions);
+    calendar.on('eventChange', updateEventOptions);
+
+    updateEventOptions();
+    setInterval(update, 1000);
+}
+
+
+// ======================================== //
+// ==== FUNCIONALIDADE DAS DICAS DE ESTUDO ==== //
+// ======================================== //
+// (Esta secção não necessita de alterações)
+function startStudyTips() {
+    const tips = [
+        "Faça pausas de 5 a 10 minutos a cada 50 minutos de estudo (Técnica Pomodoro).",
+        "Ensine o que aprendeu a outra pessoa para fixar melhor o conteúdo.",
+        "Crie mapas mentais para organizar as ideias de forma visual.",
+        "Alterne entre matérias difíceis e fáceis para manter o cérebro estimulado.",
+        "Durma bem! Uma boa noite de sono é crucial para a consolidação da memória.",
+        "Beba água. Manter-se hidratado melhora a concentração.",
+        "Evite estudar na cama. Associe a sua secretária ao local de foco.",
+        "Releia as suas anotações no final do dia."
+    ];
+
+    const tipElement = document.getElementById('study-tip-text');
+    if (!tipElement) return;
+    let currentTipIndex = 0;
+
+    function showNextTip() {
+        currentTipIndex = (currentTipIndex + 1) % tips.length;
+        tipElement.classList.add('fade-out');
+        setTimeout(() => {
+            tipElement.textContent = tips[currentTipIndex];
+            tipElement.classList.remove('fade-out');
+        }, 500);
+    }
+
+    tipElement.textContent = tips[0];
+    setInterval(showNextTip, 10000);
+}
