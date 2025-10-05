@@ -137,28 +137,36 @@ function renderCards(events) {
 function startCountdown(calendar) {
     const countdownElement = document.getElementById("countdown");
 
+    let currentIndex = 0; //indice do evento atual 
+
     function updateCountdown() {
         let events = calendar.getEvents();
         let now = new Date();
 
         // próximo evento
-        let nextEvent = events
+        let futureEvents = events
             .filter(ev => ev.start > now)
             .sort((a, b) => a.start - b.start)[0];
 
-        if (!nextEvent) {
-            // apenas relógio
+        if (futureEvents.length === 0) {
+            // apenas relógio em tempo reak
             let horas = String(now.getHours()).padStart(2, "0");
             let minutos = String(now.getMinutes()).padStart(2, "0");
             let segundos = String(now.getSeconds()).padStart(2, "0");
             countdownElement.textContent = `${horas}:${minutos}:${segundos}`;
+            countdownElement.dataset.eventInfo = ""; //limpat 
             return;
         }
 
+        if (currentIndex >= futureEvents.length){
+            currentIndex = 0;
+        }
+        let nextEvent = futureEvents[currentIndex];
         let diff = nextEvent.start - now;
 
         if (diff <= 0) {
             countdownElement.textContent = "Evento a decorrer!";
+            countdownElement.dataset.eventInfo = nextEvent.title;
             return;
         }
 
@@ -167,14 +175,22 @@ function startCountdown(calendar) {
         let minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         let segundos = Math.floor((diff % (1000 * 60)) / 1000);
 
-        if (dias > 0) {
-            countdownElement.textContent =
-                `${dias}d ${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
-        } else {
-            countdownElement.textContent =
-                `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
-        }
+        let tempo = dias > 0
+            ? `${dias}d ${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`
+            : `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+
+        //mostrar título ou matéria
+        let materia = nextEvent.extendedProps.materia || "";
+        countdownElement.textContent = materia
+            ? `${tempo} → ${materia}`
+            : `${tempo} → ${nextEvent.title}`;
     }
+
+    //click trocar para o proximo  evenrto 
+    countdownElement.addEventListener("click", () => {
+        currentIndex++;
+        updateCountdown();
+    });
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
