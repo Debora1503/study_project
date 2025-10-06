@@ -1,6 +1,4 @@
-// ================================= //
-// ==== SCRIPT GERAL DA PÁGINA ==== //
-// ================================= //
+// ==== Geral ==== //
 
 document.addEventListener('DOMContentLoaded', () => {
     const yearSpan = document.getElementById('year');
@@ -18,15 +16,13 @@ if (hero) {
     });
 }
 
-// ======================================================= //
-// ==== DELEGAÇÃO DE EVENTOS PARA OS CARDS (CORRIGIDO) ==== //
-// ======================================================= //
+// ==== Eventos para os csrds ==== //
 
 /**
  * Configura um único event listener no container dos cards.
- * Este listener irá gerir os cliques em todos os cards filhos.
- * CORRIGIDO: Agora cada card expande/recolhe independentemente.
+ * Este listener gere os cliques em todos os cards filhos.
  */
+
 function setupCardListeners() {
     const cardsContainer = document.getElementById('cards-container');
     if (!cardsContainer) return;
@@ -43,14 +39,11 @@ function setupCardListeners() {
         const clickedCard = cardHeader.closest('.card');
         if (!clickedCard) return;
 
-        // Alterna apenas o card clicado
         clickedCard.classList.toggle('expanded');
     });
 }
 
-// ======================================== //
-// ==== FUNCIONALIDADE DOS CARDS DE MATÉRIA ==== //
-// ======================================== //
+// ==== Cards materia ==== //
 
 function renderCards(events) {
     const cardsContainer = document.getElementById('cards-container');
@@ -70,7 +63,6 @@ function renderCards(events) {
     sortedEvents.forEach(ev => {
         const card = document.createElement('div');
         card.className = 'card';
-        // Adiciona um ID único ao card para referência, se necessário.
         card.dataset.eventId = ev.id || ev.start.getTime();
 
         const materia = ev.extendedProps.materia || "Nenhuma definida";
@@ -96,11 +88,7 @@ function renderCards(events) {
             </div>
         `;
 
-        // IMPORTANTE: A lógica de clique foi removida daqui para a função setupCardListeners.
-        // Isto evita a criação de múltiplos listeners e resolve o bug.
 
-        // A lógica para os botões internos de cada card pode continuar aqui,
-        // pois eles precisam de acesso direto à variável 'ev' do loop.
         const editBtn = card.querySelector('.edit-materia-btn');
         if (editBtn) {
             editBtn.addEventListener('click', (e) => {
@@ -169,12 +157,9 @@ function renderCards(events) {
 }
 
 
-// ======================================== //
-// ==== INICIALIZAÇÃO DO FULLCALENDAR ==== //
-// ======================================== //
+// ==== Calendario ==== //
 
 document.addEventListener('DOMContentLoaded', function() {
-    // CHAMA A NOVA FUNÇÃO PARA CONFIGURAR O LISTENER DELEGADO
     setupCardListeners();
 
     const calendarEl = document.getElementById('calendar');
@@ -239,10 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// ============================================= //
-// ==== FUNCIONALIDADE DO RELÓGIO E CONTADOR ==== //
-// ============================================= //
-// (Esta secção não necessita de alterações)
+// ==== Relogio +  Contador ==== //
 let showingCountdown = false;
 let selectedEventId = null;
 
@@ -376,10 +358,7 @@ function startClockOrCountdown(calendar) {
 }
 
 
-// ======================================== //
-// ==== FUNCIONALIDADE DAS DICAS DE ESTUDO ==== //
-// ======================================== //
-// (Esta secção não necessita de alterações)
+// ==== Dicas ==== //
 function startStudyTips() {
     const tips = [
         "Faça pausas de 5 a 10 minutos a cada 50 minutos de estudo (Técnica Pomodoro).",
