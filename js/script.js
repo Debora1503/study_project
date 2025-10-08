@@ -23,6 +23,18 @@ if (hero) {
  * Este listener gere os cliques em todos os cards filhos.
  */
 
+// ==== Função Auxiliar para Gerir o Foco ====
+function exitFocusMode() {
+    const cardsContainer = document.getElementById('cards-container');
+    if (cardsContainer) {
+        cardsContainer.classList.remove('focus-mode');
+        cardsContainer.querySelectorAll('.card.expanded').forEach(card => {
+            card.classList.remove('expanded');
+        });
+    }
+}
+
+
 function setupCardListeners() {
     const cardsContainer = document.getElementById('cards-container');
     if (!cardsContainer) return;
@@ -32,33 +44,24 @@ function setupCardListeners() {
             return;
         }
 
-        const cardHeader = event.target.closest('.card-header');
-        if (!cardHeader) return;
+        const clickedCard = event.target.closest('.card');
+        if (clickedCard) {
+            const isOpening = !clickedCard.classList.contains('expanded');
+            exitFocusMode();
 
-        const clickedCard = cardHeader.closest('.card');
-        if (!clickedCard) return;
-
-        const isOpening = !clickedCard.classList.contains('expanded');
-
-        const allCards = cardsContainer.querySelectorAll('.card');
-        allCards.forEach(card => {
-            if (card !== clickedCard) {
-                card.classList.remove('expanded');
+            if (isOpening) {
+                clickedCard.classList.add('expanded');
+                cardsContainer.classList.add('focus-mode');
             }
-        });
-
-        clickedCard.classList.toggle('expanded');
-
-        if (isOpening) {
-            cardsContainer.classList.add('focus-mode');
         } else {
-            cardsContainer.classList.remove('focus-mode');
+            exitFocusMode();
         }
     });
 }
 
 
 // ==== Cards materia ==== //
+// ==== Cards materia (com lógica de "Guardar" corrigida) ==== //
 
 function renderCards(events) {
     const cardsContainer = document.getElementById('cards-container');
@@ -103,37 +106,29 @@ function renderCards(events) {
             </div>
         `;
 
-
         const editBtn = card.querySelector('.edit-materia-btn');
         if (editBtn) {
             editBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Impede que o clique no botão acione o listener do header.
-
-                // Abre o card se não estiver aberto
+                e.stopPropagation();
                 if (!card.classList.contains('expanded')) {
                     card.classList.add('expanded');
                 }
-
                 const materiaSpan = card.querySelector('.materia-text');
-
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.className = 'editable-input';
                 input.value = materiaSpan.textContent === 'Nenhuma definida' ? '' : materiaSpan.textContent;
-
                 materiaSpan.replaceWith(input);
                 input.focus();
 
                 function saveMateria() {
                     const novaMateria = input.value.trim() || "Nenhuma definida";
                     ev.setExtendedProp('materia', novaMateria);
-
                     const newSpan = document.createElement('span');
                     newSpan.className = 'materia-text';
                     newSpan.textContent = novaMateria;
                     input.replaceWith(newSpan);
                 }
-
                 input.addEventListener('blur', saveMateria);
                 input.addEventListener('keydown', (evtKey) => {
                     if (evtKey.key === 'Enter') input.blur();
@@ -146,7 +141,6 @@ function renderCards(events) {
                 });
             });
         }
-
 
         const textarea = card.querySelector('.apontamentos-textarea');
         const saveBtn = card.querySelector('.save-btn');
@@ -161,15 +155,15 @@ function renderCards(events) {
             saveBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 saveNotes();
+                exitFocusMode();
             });
         }
-        if (textarea) {
-            textarea.addEventListener('blur', saveNotes);
-        }
+
 
         cardsContainer.appendChild(card);
     });
 }
+
 
 
 // ==== Calendario ==== //

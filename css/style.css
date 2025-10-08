@@ -138,6 +138,31 @@ section>h3 {
 }
 
 
+/*==== CRIAR CARD ====*/
+
+#add-card-btn {
+    display: block;
+    width: 100%;
+    padding: 40px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #8a2be2;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #d48ddf;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+#add-card-btn:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: #8a2be2;
+    color: #5c2d5a;
+    transform: scale(1.02);
+}
+
+
 /* ==== CARDS DE MATÉRIAS ==== */
 
 .cards {
