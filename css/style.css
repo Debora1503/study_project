@@ -412,3 +412,27 @@ footer {
     background-color: #cfb1f6;
     border-top: 1px solid #ffe2ff;
 }
+
+.cards-container .focus-mode .card {
+    display: none;
+}
+
+.cards-container.focus-mode .card.expanded {
+    display: block;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.cards.focus-mode .card {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.3s, opacity 0.3s ease;
+}
+
+.cards.focus-mode .card.expanded {
+    visibility: visible;
+    opacity: 1;
+    width: 80%;
+    margin: 0 auto;
+    transform: opacity 0.3s ease 0.1s;
+}

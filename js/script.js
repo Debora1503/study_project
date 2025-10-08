@@ -28,8 +28,7 @@ function setupCardListeners() {
     if (!cardsContainer) return;
 
     cardsContainer.addEventListener('click', function(event) {
-        // Evita que cliques em botões internos acionem a expansão
-        if (event.target.closest('.edit-materia-btn') || event.target.closest('.save-btn') || event.target.closest('.apontamentos-textarea')) {
+        if (event.target.closest('.edit-materia-btn, .save-btn, .apontamentos-textarea')) {
             return;
         }
 
@@ -39,9 +38,25 @@ function setupCardListeners() {
         const clickedCard = cardHeader.closest('.card');
         if (!clickedCard) return;
 
+        const isOpening = !clickedCard.classList.contains('expanded');
+
+        const allCards = cardsContainer.querySelectorAll('.card');
+        allCards.forEach(card => {
+            if (card !== clickedCard) {
+                card.classList.remove('expanded');
+            }
+        });
+
         clickedCard.classList.toggle('expanded');
+
+        if (isOpening) {
+            cardsContainer.classList.add('focus-mode');
+        } else {
+            cardsContainer.classList.remove('focus-mode');
+        }
     });
 }
+
 
 // ==== Cards materia ==== //
 
